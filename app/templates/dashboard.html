@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - MedVault{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 bg-white rounded shadow-sm border-start border-4 border-primary">
+            <h2 class="mb-1">Welcome, {{ session.get('full_name') }}</h2>
+            <p class="text-muted mb-0">
+                Logged in as 
+                <span class="badge {% if session.get('role') == 'admin' %}bg-danger{% elif session.get('role') == 'doctor' %}bg-success{% else %}bg-primary{% endif %} text-uppercase">
+                    {{ session.get('role') }}
+                </span>
+                &mdash; Session secured with strict SameSite cookies & defense-in-depth protections.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Role-Specific Action Cards -->
+<div class="row g-4">
+    {% if session.get('role') == 'patient' %}
+        <div class="col-md-6">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">&#128203; My Health Records</h5>
+                    <p class="card-text text-muted">View your diagnoses, medical notes, and prescriptions assigned by healthcare professionals.</p>
+                    <p class="fw-bold">Total Records: <span class="badge bg-secondary">{{ stats.get('my_records', 0) }}</span></p>
+                    <a href="/records" class="btn btn-outline-primary btn-sm">View My Records</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-success">&#128197; Healthcare Consultations</h5>
+                    <p class="card-text text-muted">Request consultation notes or download medical histories securely.</p>
+                    <span class="badge bg-light text-dark border">Confidential Patient Portal</span>
+                </div>
+            </div>
+        </div>
+    {% elif session.get('role') == 'doctor' %}
+        <div class="col-md-6">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-success">&#9775; Patient Clinical Records</h5>
+                    <p class="card-text text-muted">Create, review, and update clinical diagnosis records and prescriptions.</p>
+                    <p class="fw-bold">My Authored Records: <span class="badge bg-success">{{ stats.get('my_records', 0) }}</span></p>
+                    <a href="/records" class="btn btn-success btn-sm">Manage Medical Records</a>
+                    <a href="/records/create" class="btn btn-outline-success btn-sm ms-2">+ Create New Record</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-info">&#128101; Assigned Patients</h5>
+                    <p class="card-text text-muted">Distinct patient profiles under your clinical supervision.</p>
+                    <p class="fw-bold">Patients: <span class="badge bg-info text-dark">{{ stats.get('total_patients', 0) }}</span></p>
+                </div>
+            </div>
+        </div>
+    {% elif session.get('role') == 'admin' %}
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">&#128100; User Management</h5>
+                    <p class="card-text text-muted">Manage system users, assign roles, and handle account lockouts.</p>
+                    <p class="fw-bold">Registered Users: <span class="badge bg-danger">{{ stats.get('total_users', 0) }}</span></p>
+                    <a href="/admin/users" class="btn btn-danger btn-sm">Manage Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-warning text-dark">&#128274; Security Audit Logs</h5>
+                    <p class="card-text text-muted">Inspect real-time security events, authentication attempts, and authorization failures.</p>
+                    <p class="fw-bold">Logged Events: <span class="badge bg-warning text-dark">{{ stats.get('recent_logs', 0) }}</span></p>
+                    <a href="/admin/audit-logs" class="btn btn-outline-dark btn-sm">View Audit Trail</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-secondary">&#128194; All Medical Records</h5>
+                    <p class="card-text text-muted">System-wide medical records repository with audit compliance.</p>
+                    <p class="fw-bold">Active Records: <span class="badge bg-secondary">{{ stats.get('total_records', 0) }}</span></p>
+                    <a href="/records" class="btn btn-outline-secondary btn-sm">Inspect Records</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
