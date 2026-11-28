@@ -14,10 +14,10 @@ def app():
         DATABASE_PATH = db_path
         WTF_CSRF_ENABLED = False  # Allows direct POST testing without parsing csrf tokens
 
-    # Initialize schema and seed data
+    # Initialize schema and seed data with fast bcrypt rounds for testing
     conn = get_db_connection(db_path)
     create_schema(conn)
-    seed_database(conn)
+    seed_database(conn, rounds=4)
     conn.close()
 
     app = create_app(CustomTestingConfig)

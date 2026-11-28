@@ -20,9 +20,9 @@ def get_db_connection(db_path=DATABASE_NAME):
     return conn
 
 
-def hash_password(password: str) -> str:
-    """Hash password using bcrypt with high work factor (12 rounds)."""
-    salt = bcrypt.gensalt(rounds=12)
+def hash_password(password: str, rounds: int = 12) -> str:
+    """Hash password using bcrypt with configurable work factor."""
+    salt = bcrypt.gensalt(rounds=rounds)
     return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
@@ -86,7 +86,7 @@ def create_schema(conn):
     conn.commit()
 
 
-def seed_database(conn):
+def seed_database(conn, rounds: int = 12):
     """Seed initial demonstration accounts and sample medical records."""
     cursor = conn.cursor()
 
@@ -96,14 +96,14 @@ def seed_database(conn):
         print("[*] Database already populated. Skipping seed.")
         return
 
-    print("[*] Seeding default demonstration accounts with bcrypt hashes...")
+    print(f"[*] Seeding default demonstration accounts with bcrypt hashes (work factor {rounds})...")
 
     default_users = [
-        ("admin", "admin@medvault.local", hash_password("AdminPass123!@#"), "admin", "System Administrator"),
-        ("dr_smith", "dr.smith@medvault.local", hash_password("DoctorPass123!@#"), "doctor", "Dr. Alice Smith, MD"),
-        ("dr_patel", "dr.patel@medvault.local", hash_password("DoctorPass123!@#"), "doctor", "Dr. Rajesh Patel, MD"),
-        ("john_doe", "john.doe@example.com", hash_password("PatientPass123!@#"), "patient", "Johnathan Doe"),
-        ("jane_roe", "jane.roe@example.com", hash_password("PatientPass123!@#"), "patient", "Jane Roe"),
+        ("admin", "admin@medvault.local", hash_password("AdminPass123!@#", rounds=rounds), "admin", "System Administrator"),
+        ("dr_smith", "dr.smith@medvault.local", hash_password("DoctorPass123!@#", rounds=rounds), "doctor", "Dr. Alice Smith, MD"),
+        ("dr_patel", "dr.patel@medvault.local", hash_password("DoctorPass123!@#", rounds=rounds), "doctor", "Dr. Rajesh Patel, MD"),
+        ("john_doe", "john.doe@example.com", hash_password("PatientPass123!@#", rounds=rounds), "patient", "Johnathan Doe"),
+        ("jane_roe", "jane.roe@example.com", hash_password("PatientPass123!@#", rounds=rounds), "patient", "Jane Roe"),
     ]
 
     cursor.executemany("""
