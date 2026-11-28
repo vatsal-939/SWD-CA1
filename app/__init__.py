@@ -28,7 +28,9 @@ def create_app(config_class=Config):
 
     # Register Blueprints
     from app.auth import auth_bp
+    from app.records import records_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(records_bp)
 
     # Security Headers Middleware (Defends against Clickjacking, MIME-sniffing, XSS)
     @app.after_request
