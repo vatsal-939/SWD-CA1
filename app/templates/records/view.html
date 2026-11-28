@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Record #{{ record.id }} - MedVault{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ url_for('records.list_records') }}" class="btn btn-outline-secondary btn-sm">
+                &larr; Back to Records
+            </a>
+            <div>
+                {% if session.get('role') == 'admin' or (session.get('role') == 'doctor' and session.get('user_id') == record.doctor_id) %}
+                    <a href="{{ url_for('records.edit_record', record_id=record.id) }}" class="btn btn-outline-primary btn-sm me-1">
+                        Edit Record
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Archive Record
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card p-4 bg-white mb-4">
+            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                <div>
+                    <h3 class="card-title mb-1 text-primary">Medical Consultation Report</h3>
+                    <p class="text-muted small mb-0">Record ID: <strong>#{{ record.id }}</strong> | Date of Visit: <strong>{{ record.record_date }}</strong></p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2">
+                        CONFIDENTIAL
+                    </span>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 border-end">
+                    <h6 class="text-muted text-uppercase small">Patient Details</h6>
+                    <p class="mb-1 fw-bold fs-5">{{ record.patient_name }}</p>
+                    <p class="text-muted small mb-0">{{ record.patient_email }}</p>
+                </div>
+                <div class="col-md-6 ps-md-4">
+                    <h6 class="text-muted text-uppercase small">Attending Practitioner</h6>
+                    <p class="mb-1 fw-bold fs-5">{{ record.doctor_name }}</p>
+                    <p class="text-muted small mb-0">Authorized Medical Officer</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="text-muted text-uppercase small">Clinical Diagnosis</h6>
+                <div class="p-3 bg-light rounded border">
+                    <h5 class="mb-0 text-dark">{{ record.diagnosis }}</h5>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="text-muted text-uppercase small">Treatment &amp; Consultation Notes</h6>
+                <div class="p-3 bg-light rounded border">
+                    <p class="mb-0" style="white-space: pre-wrap;">{{ record.treatment_notes }}</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="text-muted text-uppercase small">Prescription &amp; Dosage Instructions</h6>
+                <div class="p-3 bg-light rounded border border-info-subtle">
+                    <p class="mb-0 fw-semibold text-primary" style="white-space: pre-wrap;">{{ record.prescription }}</p>
+                </div>
+            </div>
+
+            <div class="text-muted small border-top pt-3 d-flex justify-content-between">
+                <span>Created: {{ record.created_at }}</span>
+                <span>Last Updated: {{ record.updated_at }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Soft-Delete Confirmation Modal -->
+{% if session.get('role') == 'admin' or (session.get('role') == 'doctor' and session.get('user_id') == record.doctor_id) %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="deleteModalLabel">Confirm Record Archival</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to archive medical record <strong>#{{ record.id }}</strong> for <strong>{{ record.patient_name }}</strong>?</p>
+                <p class="small text-muted mb-0">This record will be soft-deleted and removed from active views, but retained in the secure database for audit compliance.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('records.delete_record', record_id=record.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Yes, Archive Record</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
